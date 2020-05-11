@@ -28,7 +28,7 @@ jobs:
         source: { repository: busybox }
       run:
         path: faas-cli
-        args: ["build", "-f", "faas.yml"]
+        args: ["build", "-f", "faas.yml", "--shrinkwrap"]
       outputs:
         - name: build
   - put: dockerfile
