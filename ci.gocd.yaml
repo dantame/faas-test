@@ -1,25 +1,41 @@
+format_version: 3
 pipelines:
-  faas-test:
+  faas-test-pipeline:
+    group: defaultGroup
+    label_template: ${COUNT}
+    lock_behavior: none
+    display_order: -1
     materials:
-      faas-test-git:  # this is the name of material
-        # says about type of material and url at once
-        git: http://github.com/dantame/faas-test.git
+      git:
+        git: https://github.com/dantame/faas-test.git
+        shallow_clone: false
+        auto_update: true
+        branch: master
     stages:
-      - build: # name of stage
-          jobs:
-            get-faas-cli: # name of the job
-              tasks:
-               - exec: # indicates type of task
-                   command: curl -sSL https://cli.openfaas.com | sudo sh
-            build-image:
-              tasks:
-              - exec:
-                   command: faas-cli build --shrinkwrap
-            push-image:
-              tasks:
-              - exec:
-                   command: faas-cli push
-            deploy-image:
-              tasks:
-              - exec:
-                   command: faas-cli deploy
+    - build:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: false
+        approval:
+          type: success
+          allow_only_on_success: false
+        jobs:
+          get-faas-cli: # name of the job
+            tasks:
+             - exec: # indicates type of task
+                 command: curl -sSL https://cli.openfaas.com | sudo sh
+          build-image:
+            tasks:
+            - exec:
+                 command: faas-cli build --shrinkwrap
+                 run_if: passed
+          push-image:
+            tasks:
+            - exec:
+                 command: faas-cli push
+                 run_if: passed
+          deploy-image:
+            tasks:
+            - exec:
+                 command: faas-cli deploy
+                 run_if: passed
