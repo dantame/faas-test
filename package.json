@@ -1,5 +1,5 @@
 {
-  "name": "openfaas-function",
+  "name": "faas-test",
   "version": "1.0.0",
   "description": "OpenFaaS Function",
   "main": "handler.js",

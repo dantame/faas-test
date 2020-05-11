@@ -5,21 +5,34 @@ resources:
     icon: github-circle
     source:
       uri: https://github.com/dantame/faas-test
+  - name: dockerfile
+    type: docker-image
+    source:
+      repository: 192.168.1.17:32768/faas-test
+      tag: latest
+      insecure_registries: ["192.168.1.17:32768"]
 
 jobs:
-  - name: faas test job
-    public: true
-    plan:
-      - get: faas-test
-        trigger: true
-      - task: deploy
-        config:
-          inputs:
-            - name: faas-test
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: { repository: busybox }
-          run:
-            path: ls
-            args: ["-la", "./faas-test"]
+- name: publish
+  public: true
+  serial: true
+  plan:
+  - get: faas-test
+  - task: shrinkwrap
+    config:
+      inputs:
+        - name: faas-test
+      platform: linux
+      image_resource:
+        type: registry-image
+        source: { repository: busybox }
+      run:
+        path: faas-cli
+        args: ["build", "-f", "faas.yml"]
+      outputs:
+        - name: build
+  - put: dockerfile
+    params:
+      build: build/faas-test
+    inputs:
+      - name: build
