@@ -1,0 +1,25 @@
+---
+resources:
+  - name: faas-test
+    type: git
+    icon: github-circle
+    source:
+      uri: https://github.com/dantame/faas-test
+
+jobs:
+  - name: faas test job
+    public: true
+    plan:
+      - get: faas-test
+        trigger: true
+      - task: deploy
+        config:
+          inputs:
+            - name: faas-test
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: { repository: busybox }
+          run:
+            path: ls
+            args: ["-la", "./faas-test"]
